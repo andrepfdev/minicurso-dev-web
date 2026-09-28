@@ -12,15 +12,26 @@ export default {
     };
   },
 
+  mounted() {
+    const salva = localStorage.getItem("sessao");
+    if (salva) {
+      const { token, usuario } = JSON.parse(salva);
+      this.token = token;
+      this.usuarioLogado = usuario;
+    }
+  },
+
   methods: {
     aoLogar({ token, usuario }) {
       this.token = token;
       this.usuarioLogado = usuario;
+      localStorage.setItem("sessao", JSON.stringify({ token, usuario }));
     },
 
     sair() {
       this.token = null;
       this.usuarioLogado = null;
+      localStorage.removeItem("sessao");
     },
   },
 };
