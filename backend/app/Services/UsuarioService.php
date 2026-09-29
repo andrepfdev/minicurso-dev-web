@@ -33,6 +33,13 @@ class UsuarioService
         return $this->semSenha($usuario);
     }
 
+    public function buscarPorNome(string $nome): array
+    {
+        $usuarios = $this->model->like('nome', $nome)->findAll();
+
+        return array_map(fn ($usuario) => $this->semSenha($usuario), $usuarios);
+    }
+
     public function criar(array $dados): array
     {
         if (empty($dados['nome']) || empty($dados['email']) || empty($dados['senha'])) {

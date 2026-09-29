@@ -10,17 +10,11 @@ export default {
     };
   },
 
-  computed: {
-    // Filtra por nome ou e-mail, ignorando maiúsculas e acentos
-    resultados() {
-      const termo = this.normalizar(this.termo.trim());
-      if (!termo) return this.usuarios;
-
-      return this.usuarios.filter(
-        (u) =>
-          this.normalizar(u.nome).includes(termo) ||
-          this.normalizar(u.email).includes(termo)
-      );
+  watch: {
+    // Espera o usuário parar de digitar (300 ms) antes de chamar a API
+    termo() {
+      clearTimeout(this.timer);
+      this.timer = setTimeout(this.carregarUsuarios, 300);
     },
   },
 
@@ -29,16 +23,11 @@ export default {
   },
 
   methods: {
-    normalizar(texto) {
-      return String(texto ?? "")
-        .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "")
-        .toLowerCase();
-    },
-
     async carregarUsuarios() {
       try {
-        const resposta = await fetch(`${API_URL}/usuarios`);
+        const resposta = await fetch(
+          `${API_URL}/usuarios/busca?nome=${encodeURIComponent(this.termo.trim())}`
+        );
         const corpo = await resposta.json();
 
         if (!resposta.ok || !corpo.sucesso) {
@@ -70,15 +59,15 @@ export default {
       v-model="termo"
       type="search"
       class="form-control mb-3"
-      placeholder="Buscar por nome ou e-mail"
+      placeholder="Buscar por nome"
       autofocus
     />
 
     <p class="text-muted small">
-      {{ resultados.length }} resultado(s)
+      {{ usuarios.length }} resultado(s)
     </p>
 
-    <table v-if="resultados.length" class="table table-hover align-middle">
+    <table v-if="usuarios.length" class="table table-hover align-middle">
       <thead>
         <tr>
           <th>Nome</th>
@@ -86,7 +75,7 @@ export default {
         </tr>
       </thead>
       <tbody>
-        <tr v-for="usuario in resultados" :key="usuario.id">
+        <tr v-for="usuario in usuarios" :key="usuario.id">
           <td>{{ usuario.nome }}</td>
           <td>{{ usuario.email }}</td>
         </tr>

@@ -24,6 +24,23 @@ class Usuarios extends Controller
         ]);
     }
 
+    // Erro PROPOSITAL (usado na tela /busca do frontend para demonstrar
+    // tratamento de falhas). Remover este método para a busca funcionar.
+    public function busca()
+    {
+        // return $this->response->setStatusCode(500)->setJSON([
+        //     'sucesso'  => false,
+        //     'mensagem' => 'Erro proposital: falha ao buscar usuários no servidor.',
+        // ]);
+        
+        $usuarios = $this->service->buscarPorNome($this->request->getGet('nome') ?? '');
+
+        return $this->response->setJSON([
+            'sucesso' => true,
+            'dados'   => $usuarios,
+        ]);
+    }
+
     public function show($id = null)
     {
         try {
