@@ -19,10 +19,10 @@ class UsuarioService
 
     public function listar(): array
     {
-        return array_map(
-            fn (array $usuario) => $this->semSenha($usuario),
-            $this->model->orderBy('id', 'ASC')->findAll()
-        );
+        $usuarios = $this->model->orderBy('id', 'ASC')->findAll();
+
+        // return array_map(fn($usuario) => $this->semSenha($usuario), $usuarios);
+        return $usuarios;
     }
 
     public function buscar(int $id): array
