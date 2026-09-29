@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import TelaLogin from "../components/TelaLogin.vue";
 import PainelUsuarios from "../components/PainelUsuarios.vue";
+import PaginaBusca from "../components/PaginaBusca.vue";
 
 const router = createRouter({
   // Usa a History API do navegador (URLs sem "#")
@@ -16,6 +17,13 @@ const router = createRouter({
       name: "usuarios",
       component: PainelUsuarios,
       // Marca a rota como protegida; lido no beforeEach abaixo
+      meta: { requerLogin: true },
+    },
+
+    {
+      path: "/busca",
+      name: "busca",
+      component: PaginaBusca,
       meta: { requerLogin: true },
     },
 

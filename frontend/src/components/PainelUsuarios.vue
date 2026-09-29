@@ -155,7 +155,10 @@ export default {
   <div>
     <div class="d-flex justify-content-between align-items-center mb-4">
       <span>Logado como <strong>{{ usuarioLogado.nome }}</strong></span>
-      <button class="btn btn-outline-secondary btn-sm" @click="$emit('sair')">Sair</button>
+      <div>
+        <router-link :to="{ name: 'busca' }" class="btn btn-outline-dark btn-sm me-1">Buscar</router-link>
+        <button class="btn btn-outline-secondary btn-sm" @click="$emit('sair')">Sair</button>
+      </div>
     </div>
 
     <div v-if="erro" class="alert alert-danger">{{ erro }}</div>
