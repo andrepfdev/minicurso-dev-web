@@ -79,7 +79,18 @@ class Usuarios extends Controller
             ]);
         }
 
-        $model->update((int) $id, $campos);
+        // O Model tem a regra is_unique[usuarios.email,id,{id}] — o placeholder {id} só
+        // resolve se o id estiver nos dados validados (Model::update() valida ANTES de
+        // saber o id da query). O campo 'id' não está em $allowedFields, então é
+        // descartado antes de ir pro banco; serve só pra validação enxergar o {id}.
+        $campos['id'] = (int) $id;
+
+        if (! $model->update((int) $id, $campos)) {
+            return $this->response->setStatusCode(422)->setJSON([
+                'sucesso'  => false,
+                'mensagem' => implode(' ', $model->errors() ?? ['Não foi possível atualizar.']),
+            ]);
+        }
 
         $atualizado = $model->find((int) $id);
         unset($atualizado['senha']);

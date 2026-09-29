@@ -34,6 +34,10 @@ class UsuarioModel extends Model
 
     // Validation
     protected $validationRules      = [
+        // 'id' precisa ter regra própria só pra existir como alvo do placeholder
+        // {id} usado em is_unique[usuarios.email,id,{id}] — exigência do CI4, não é
+        // validado de verdade em insert/update normal (o Model já sabe o id da query).
+        'id' => 'permit_empty|is_natural_no_zero',
         'nome' => 'required|max_length[255]',
         'email' => 'required|valid_email|is_unique[usuarios.email,id,{id}]',
         'senha' => 'required|min_length[6]',

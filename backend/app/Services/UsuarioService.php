@@ -21,7 +21,7 @@ class UsuarioService
     {
         $usuarios = $this->model->orderBy('id', 'ASC')->findAll();
 
-        // return array_map(fn($usuario) => $this->semSenha($usuario), $usuarios);
+        // return array_map(fn ($usuario) => $this->semSenha($usuario), $usuarios);
         return $usuarios;
     }
 
@@ -45,6 +45,12 @@ class UsuarioService
             'senha'   => $dados['senha'],
             'salario' => $dados['salario'] ?? 0,
         ]);
+
+        if (! $id) {
+            throw new \InvalidArgumentException(
+                implode(' ', $this->model->errors() ?? ['Não foi possível cadastrar.'])
+            );
+        }
 
         return $this->semSenha($this->model->find($id));
     }

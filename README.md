@@ -105,3 +105,43 @@ A rota `GET /api/usuarios/:id` já existe. Adicione um campo de busca por ID em
 `components/PainelUsuarios.vue`: se o usuário existir, mostre os dados; se a API responder 404
 (confira no Network o status e o corpo da resposta), mostre a mensagem de erro que ela já devolve
 (`corpo.mensagem`) em vez de deixar a tela sem retorno nenhum.
+
+### Desafio 4: cadastrar um e-mail repetido — leia a validação pronta
+Tente cadastrar um usuário com o e-mail `ana@ifma.edu.br` (já existe no seeder). A API responde
+**422** com uma mensagem amigável ("O email informado já está em uso.") em vez de quebrar — quem
+bloqueia isso é a regra `is_unique[usuarios.email,id,{id}]` em `Models/UsuarioModel.php`
+(`$validationRules`), antes mesmo de chegar no banco. Abra o Network pra ver o 422 tratado, depois
+abra o Model e ache a regra. Bônus pra pensar: por que o campo `id` também precisa de uma regra
+própria ali (`'id' => 'permit_empty|is_natural_no_zero'`) pro placeholder `{id}` funcionar? (Dica:
+sem ela, o CI4 nem sabe qual linha excluir da checagem de duplicidade — e sem *nenhuma* regra pra
+`id`, ele nem deixa usar o placeholder, e quebra com um erro interno.)
+
+### Desafio 5: a API está vazando a senha de todo mundo — ache os dois vazamentos
+Abra o Network, dê F5 na tabela de usuários (`GET /api/usuarios`) e depois faça login de novo
+(`POST /api/auth/login`): as duas respostas trazem o campo `senha` **em texto puro**, pra qualquer
+um que abrir o DevTools ver. Isso não devia acontecer — compare com `UsuarioService::buscar()`
+(que já esconde a senha direito) e ache as duas linhas comentadas que deveriam estar ativas:
+`UsuarioService::listar()` e `AuthService::login()`. Descomente as duas e confirme no Network que
+o campo `senha` sumiu da resposta nos dois casos.
+
+### Desafio 6: ordenar a lista por nome
+Repare que a tabela em `components/PainelUsuarios.vue` mostra os usuários na ordem que a API
+devolve — por `id`, não por nome (dá pra confirmar no seeder: os quatro não estão em ordem
+alfabética de propósito, pra esse desafio ficar visível de verdade). Adicione um botão "Ordenar
+A-Z" que reordena `this.usuarios` pelo campo `nome`, usando o método `.sort()` de array em JS — sem
+precisar mexer no backend. Reforça manipulação de array, tema que já apareceu lá no bloco de
+"Dados: JSON e estruturas" da aula.
+
+### Desafio 7: formatar o salário como dinheiro
+Depois do Desafio 0 (mostrar a coluna `salario`), o número aparece cru na tabela (`3200`,
+`2800.5`) — sem `R$`, sem separador de milhar, sem duas casas decimais. Formate isso no
+`components/PainelUsuarios.vue` antes de exibir.
+
+**Pista:** o JavaScript já vem com um formatador de moeda pronto, o `Intl.NumberFormat`:
+```js
+new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(3200)
+// "R$ 3.200,00"
+```
+Pode criar um `method` tipo `formatarSalario(valor)` que devolve esse `.format(valor)` e usar no
+template (`{{ formatarSalario(usuario.salario) }}`), ou um `computed` se preferir. A API continua
+devolvendo o número puro — formatação de exibição é responsabilidade do front, não do back.

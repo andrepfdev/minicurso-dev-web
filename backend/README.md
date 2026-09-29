@@ -44,12 +44,12 @@ Se for gerar este projeto do zero (sem copiar a pasta `vendor/`):
 
 | Método | Rota | O que faz |
 |---|---|---|
-| GET | `/api/usuarios` | Lista todos os usuários (sem a senha) |
+| GET | `/api/usuarios` | Lista todos os usuários (⚠️ hoje devolve a senha em texto puro de propósito — Desafio 5) |
 | GET | `/api/usuarios/:id` | Busca um usuário |
 | POST | `/api/usuarios` | Cadastra um usuário (`nome`, `email`, `senha`) |
 | PUT | `/api/usuarios/:id` | Atualiza `nome`/`email`/`salario` |
 | DELETE | `/api/usuarios/:id` | Remove um usuário |
-| POST | `/api/auth/login` | Login (`email`, `senha`) → `{token, usuario}` |
+| POST | `/api/auth/login` | Login (`email`, `senha`) → `{token, usuario}` (⚠️ `usuario` também vem com a senha em texto puro de propósito — Desafio 5) |
 
 Login de teste (seeder): `ana@ifma.edu.br` / `123456` (também `bruno@`, `carla@`, `diego@`
 `@ifma.edu.br`, mesma senha).
@@ -77,3 +77,12 @@ Login de teste (seeder): `ana@ifma.edu.br` / `123456` (também `bruno@`, `carla@
   filtro rodar. `$required['before']` roda mesmo sem rota casada — é o único jeito de responder o
   preflight corretamente. Isso foi descoberto testando o app pelo navegador de verdade (curl
   sozinho não pega esse problema, porque não manda preflight).
+- `Models/UsuarioModel.php` — tem `$validationRules` de verdade (`nome`, `email` com
+  `is_unique[...]`, `senha`, `salario`, e um `'id' => 'permit_empty|is_natural_no_zero'` só pra
+  permitir o placeholder `{id}` da regra de e-mail único — exigência do próprio CI4, ver Desafio 4
+  no README raiz). Isso faz `UsuarioService::criar()` e `Controllers/Usuarios.php::update()`
+  checarem o retorno do Model (`insert()`/`update()` podem devolver `false` sem lançar exceção) e
+  devolverem os erros de `$model->errors()` — sem isso, uma validação que falha vira um "sucesso"
+  fantasma (dado antigo devolvido como se tivesse sido salvo).
+- `UsuarioService::listar()` e `AuthService::login()` têm um `unset($usuario['senha'])` comentado
+  de propósito — é o Desafio 5 do README raiz (achar os dois vazamentos de senha em texto puro).
